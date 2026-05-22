@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'YOUR_GITHUB_URL'
+                url: 'https://github.com/Sharanya21-ai/tictactoe.git'
             }
         }
 
@@ -30,7 +30,7 @@ pipeline {
             emailext (
                 subject: "SUCCESS: ${JOB_NAME} #${BUILD_NUMBER}",
                 body: "Tic Tac Toe Build Successful!",
-                to: "yourmail@gmail.com"
+                to: "sharanyajagannath214@gmail.com"
             )
         }
 
@@ -38,7 +38,7 @@ pipeline {
             emailext (
                 subject: "FAILED: ${JOB_NAME} #${BUILD_NUMBER}",
                 body: "Build Failed!",
-                to: "yourmail@gmail.com"
+                to: "sharanyajagannath214@gmail.com"
             )
         }
     }
