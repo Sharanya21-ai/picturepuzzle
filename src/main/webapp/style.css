@@ -1,7 +1,12 @@
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     text-align: center;
     background-color: #f2f2f2;
+    margin-top: 50px;
+}
+
+h1 {
+    color: #333;
 }
 
 .board {
@@ -9,6 +14,7 @@ body {
     margin: 20px auto;
     display: grid;
     grid-template-columns: repeat(3, 100px);
+    gap: 2px;
 }
 
 .cell {
@@ -21,8 +27,16 @@ body {
     align-items: center;
     cursor: pointer;
     background-color: white;
+    font-weight: bold;
+}
+
+.cell:hover {
+    background-color: #e6e6e6;
 }
 
 button {
     padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
 }
