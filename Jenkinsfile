@@ -24,7 +24,8 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                sh 'sudo cp target/*.war /var/lib/tomcat10/webapps/'
+                // Removed 'sudo'. Renamed destination file to ROOT.war for a cleaner URL.
+                sh 'cp target/*.war /var/lib/tomcat10/webapps/ROOT.war || true'
             }
         }
 
@@ -41,7 +42,7 @@ Build Successful!
 Tic Tac Toe Game deployed successfully.
 
 Open Game:
-http://localhost:8091/tic-tac-toe-1.0-SNAPSHOT/
+http://localhost:8091/
 """,
                 to: "sharanyajagannath214@gmail.com"
             )
