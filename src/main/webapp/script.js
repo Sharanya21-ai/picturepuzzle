@@ -1,143 +1,143 @@
-const rows = 3;
-const columns = 3;
+const rows = 4; // Number of boxes rows (creates a 5x5 dot grid)
+const cols = 4; // Number of boxes columns
 
-let currTile; // The tile being dragged
-let otherTile; // The blank tile being dropped onto
+let currentPlayer = 1;
+let scores = { 1: 0, 2: 0 };
+let boxesMatrix = []; // Tracks lines around each box
 
-let movesRemaining = 25;
-let gameActive = true;
+const board = document.getElementById('board');
+const p1ScoreEl = document.getElementById('p1-score');
+const p2ScoreEl = document.getElementById('p2-score');
+const turnText = document.getElementById('turn-text');
+const resetBtn = document.getElementById('reset-btn');
 
-// Track the correct puzzle grid positions (0-8)
-const correctOrder = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
-let currentOrder = [];
+function initGame() {
+    board.innerHTML = '';
+    scores = { 1: 0, 2: 0 };
+    currentPlayer = 1;
+    updateUI();
 
-window.onload = function() {
-    startNewGame();
+    // Build box matrix initialization data
+    boxesMatrix = [];
+    for (let r = 0; r < rows; r++) {
+        boxesMatrix[r] = [];
+        for (let c = 0; c < cols; c++) {
+            boxesMatrix[r][c] = { top: null, bottom: null, left: null, right: null, filled: false };
+        }
+    }
+
+    // Generate the DOM grid
+    for (let r = 0; r <= rows * 2; r++) {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'row';
+
+        for (let c = 0; c <= cols * 2; c++) {
+            if (r % 2 === 0 && c % 2 === 0) {
+                // Dot
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                rowEl.appendChild(dot);
+            } else if (r % 2 === 0 && c % 2 !== 0) {
+                // Horizontal Line
+                const line = document.createElement('div');
+                line.className = 'line h-line';
+                const boxR = r / 2;
+                const boxC = Math.floor(c / 2);
+                
+                // Associate line with adjacent boxes
+                line.dataset.boxes = JSON.stringify([
+                    boxR < rows ? {r: boxR, c: boxC, side: 'top'} : null,
+                    boxR > 0 ? {r: boxR - 1, c: boxC, side: 'bottom'} : null
+                ].filter(Boolean));
+
+                line.addEventListener('click', handleLineClick);
+                rowEl.appendChild(line);
+            } else if (r % 2 !== 0 && c % 2 === 0) {
+                // Vertical Line
+                const line = document.createElement('div');
+                line.className = 'line v-line';
+                const boxR = Math.floor(r / 2);
+                const boxC = c / 2;
+
+                // Associate line with adjacent boxes
+                line.dataset.boxes = JSON.stringify([
+                    boxC < cols ? {r: boxR, c: boxC, side: 'left'} : null,
+                    boxC > 0 ? {r: boxR, c: boxC - 1, side: 'right'} : null
+                ].filter(Boolean));
+
+                line.addEventListener('click', handleLineClick);
+                rowEl.appendChild(line);
+            } else {
+                // Box Space
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.id = `box-${Math.floor(r/2)}-${Math.floor(c/2)}`;
+                rowEl.appendChild(box);
+            }
+        }
+        board.appendChild(rowEl);
+    }
 }
 
-function startNewGame() {
-    // Reset game states
-    movesRemaining = 25;
-    gameActive = true;
-    document.getElementById("moves-count").innerText = movesRemaining;
-    document.getElementById("game-status").innerText = "";
-    document.getElementById("board").innerHTML = "";
+function handleLineClick(e) {
+    const line = e.target;
+    if (line.classList.contains('filled')) return;
 
-    // Generate a unique random number to force Unsplash to fetch a brand new image
-    const randomId = Math.floor(Math.random() * 10000);
-    const imageUrl = `https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&h=300&q=80&sig=${randomId}`;
-    
-    // Update the mini-reference preview target image
-    document.getElementById("reference-img").src = imageUrl;
+    line.classList.add('filled', `p${currentPlayer}`);
+    const associatedBoxes = JSON.parse(line.dataset.boxes);
+    let boxClosed = false;
 
-    // Create a shuffled array for tiles 0 through 7
-    currentOrder = ["0", "1", "2", "3", "4", "5", "6", "7"];
-    currentOrder.sort(() => Math.random() - 0.5);
-    
-    // Always append position '8' at the very end so the bottom-right start is blank
-    currentOrder.push("8"); 
-
-    // Build the 3x3 interactive game board
-    for (let i = 0; i < 9; i++) {
-        let tile = document.createElement("div");
-        tile.id = i.toString();
-        tile.classList.add("tile");
+    associatedBoxes.forEach(b => {
+        boxesMatrix[b.r][b.c][b.side] = currentPlayer;
         
-        let pieceValue = currentOrder[i];
-        tile.setAttribute("data-piece", pieceValue);
+        // Check if all 4 sides of this box are claimed
+        const boxObj = boxesMatrix[b.r][b.c];
+        if (!boxObj.filled && boxObj.top && boxObj.bottom && boxObj.left && boxObj.right) {
+            boxObj.filled = true;
+            scores[currentPlayer]++;
+            boxClosed = true;
+            
+            // Mark box visually
+            const boxEl = document.getElementById(`box-${b.r}-${b.c}`);
+            boxEl.classList.add(`p${currentPlayer}`);
+            boxEl.innerText = currentPlayer === 1 ? '1' : '2';
+        }
+    });
 
-        if (pieceValue === "8") {
-            tile.classList.add("blank");
+    if (boxClosed) {
+        updateUI();
+        checkGameOver();
+    } else {
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+        updateUI();
+    }
+}
+
+function updateUI() {
+    p1ScoreEl.innerText = scores[1];
+    p2ScoreEl.innerText = scores[2];
+    
+    document.querySelector('.player-1').classList.toggle('active', currentPlayer === 1);
+    document.querySelector('.player-2').classList.toggle('active', currentPlayer === 2);
+    
+    turnText.innerText = `Player ${currentPlayer}'s Turn`;
+}
+
+function checkGameOver() {
+    if (scores[1] + scores[2] === rows * cols) {
+        if (scores[1] > scores[2]) {
+            turnText.innerText = "🎉 Player 1 Wins!";
+        } else if (scores[2] > scores[1]) {
+            turnText.innerText = "🎉 Player 2 Wins!";
         } else {
-            // Cut the single image into sections using CSS background coordinate shifting
-            tile.style.backgroundImage = `url('${imageUrl}')`;
-            let r = Math.floor(parseInt(pieceValue) / 3);
-            let c = parseInt(pieceValue) % 3;
-            tile.style.backgroundPosition = `-${c * 100}px -${r * 100}px`;
+            turnText.innerText = "It's a Tie! 🤝";
         }
-
-        // Drag & Drop Event Listeners
-        tile.addEventListener("dragstart", dragStart);
-        tile.addEventListener("dragover", dragOver);
-        tile.addEventListener("dragenter", dragEnter);
-        tile.addEventListener("dragleave", dragLeave);
-        tile.addEventListener("drop", dragDrop);
-        tile.addEventListener("dragend", dragEnd);
-
-        document.getElementById("board").append(tile);
+        document.querySelector('.player-1').classList.remove('active');
+        document.querySelector('.player-2').classList.remove('active');
     }
 }
 
-// Drag functionality mechanisms
-function dragStart() { if (!gameActive) return; currTile = this; }
-function dragOver(e) { e.preventDefault(); }
-function dragEnter(e) { e.preventDefault(); }
-function dragLeave() {}
-function dragDrop() { otherTile = this; }
+resetBtn.addEventListener('click', initGame);
 
-function dragEnd() {
-    // Only allow movements if game is active and dropping onto the blank tile
-    if (!gameActive || !otherTile || !otherTile.classList.contains("blank")) return;
-
-    let cId = parseInt(currTile.id);
-    let oId = parseInt(otherTile.id);
-
-    // Grid coordinates calculations for adjacent tiles (Up, Down, Left, Right)
-    let validMoves = [cId - 1, cId + 1, cId - 3, cId + 3];
-
-    // Prevent lateral boundary wrapping across grid rows
-    if (cId % 3 === 0 && oId === cId - 1) return;
-    if (cId % 3 === 2 && oId === cId + 1) return;
-
-    if (validMoves.includes(oId)) {
-        // Collect current positions style information maps
-        let tempPiece = currTile.getAttribute("data-piece");
-        let tempBg = currTile.style.backgroundImage;
-        let tempBp = currTile.style.backgroundPosition;
-
-        // Swap Data: Transform current tile into the new blank spot
-        currTile.setAttribute("data-piece", "8");
-        currTile.classList.add("blank");
-        currTile.style.backgroundImage = "";
-        currTile.style.backgroundPosition = "";
-
-        // Swap Data: Populate target tile with old image segment characteristics
-        otherTile.setAttribute("data-piece", tempPiece);
-        otherTile.classList.remove("blank");
-        otherTile.style.backgroundImage = tempBg;
-        otherTile.style.backgroundPosition = tempBp;
-
-        // Deduct a move and update view
-        movesRemaining--;
-        document.getElementById("moves-count").innerText = movesRemaining;
-
-        checkGameState();
-    }
-}
-
-function checkGameState() {
-    let tiles = document.getElementsByClassName("tile");
-    let isVictory = true;
-
-    // Check if current positions match the index IDs completely
-    for (let i = 0; i < tiles.length; i++) {
-        if (tiles[i].getAttribute("data-piece") !== i.toString()) {
-            isVictory = false;
-            break;
-        }
-    }
-
-    if (isVictory) {
-        document.getElementById("game-status").innerText = "You Win! 🎉";
-        document.getElementById("game-status").style.color = "green";
-        gameActive = false;
-        return;
-    }
-
-    // Check failure system constraints metrics
-    if (movesRemaining <= 0) {
-        document.getElementById("game-status").innerText = "Game Over! Out of Moves ❌";
-        document.getElementById("game-status").style.color = "red";
-        gameActive = false;
-    }
-}
+// Run game on load
+initGame();
