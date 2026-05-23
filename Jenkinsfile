@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     tools {
@@ -8,10 +7,8 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
-                // Automatically pulls down your project using your Jenkins Job UI configuration
                 checkout scm
             }
         }
@@ -24,11 +21,9 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                // Copies the newly packaged war file into Tomcat's deployment directory as puzzle.war
-                sh 'cp target/*.war /var/lib/tomcat10/webapps/puzzle.war || true'
+                sh 'cp target/photo-puzzle.war /var/lib/tomcat10/webapps/puzzle.war'
             }
         }
-
     }
 
     post {
@@ -41,7 +36,7 @@ Build Successful!
 Photo Puzzle Game deployed successfully.
 
 Play the Game here:
-http://localhost:8091/puzzle/
+http://localhost:8080/puzzle/
 """,
                 to: "djhrishikesh2003@gmail.com"
             )
