@@ -1,131 +1,34 @@
-:root {
-    --dot-color: #333;
-    --line-hover: #ddd;
-    --p1-color: #3498db;
-    --p2-color: #e74c3c;
-    --bg-color: #f4f6f9;
-}
-
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-.game-container {
     text-align: center;
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    font-family: Arial;
+    background-color: #f2f2f2;
 }
 
 h1 {
-    margin-top: 0;
-    color: #2c3e50;
-}
-
-.scoreboard {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.player {
-    padding: 8px 16px;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-}
-
-.player-1.active { background-color: var(--p1-color); color: white; }
-.player-2.active { background-color: var(--p2-color); color: white; }
-
-.turn-indicator {
-    margin-bottom: 20px;
-    font-weight: 600;
-    color: #7f8c8d;
+    margin-top: 20px;
 }
 
 .board {
-    display: inline-block;
-    margin: 0 auto;
+    width: 306px;
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 3px;
 }
 
-/* Row layouts */
-.row {
-    display: flex;
-    align-items: center;
-}
-
-/* Game elements */
-.dot {
-    width: 12px;
-    height: 12px;
-    background-color: var(--dot-color);
-    border-radius: 50%;
-    z-index: 2;
-}
-
-.line {
-    background-color: transparent;
-    transition: background-color 0.2s;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.line:not(.filled):hover {
-    background-color: var(--line-hover);
-}
-
-.line.h-line {
-    width: 60px;
-    height: 12px;
-    margin: 0 -6px; /* Overlap nicely with dots */
-}
-
-.line.v-line {
-    width: 12px;
-    height: 60px;
-    margin: -6px 0;
-}
-
-.line.filled.p1 { background-color: var(--p1-color); cursor: default; }
-.line.filled.p2 { background-color: var(--p2-color); cursor: default; }
-
-.box {
-    width: 60px;
-    height: 60px;
-    margin: -6px;
+.cell {
+    background: white;
+    border: 2px solid black;
+    font-size: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: white;
-    transition: background-color 0.3s ease;
-}
-
-.box.p1 { background-color: rgba(52, 152, 219, 0.4); color: #2980b9; }
-.box.p2 { background-color: rgba(231, 76, 60, 0.4); color: #c0392b; }
-
-#reset-btn {
-    margin-top: 25px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #2cc36b;
-    color: white;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
 }
 
-#reset-btn:hover {
-    background-color: #27ae60;
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
 }
