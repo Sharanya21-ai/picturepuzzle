@@ -1,63 +1,62 @@
-let currentPlayer = "X";
 let board = ["", "", "", "", "", "", "", "", ""];
-let gameOver = false;
+let currentPlayer = "X";
+let isGameActive = true;
+const statusDisplay = document.getElementById('status');
 
-function play(cell, index) {
+const winningConditions = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6]             // Diagonals
+];
 
-    if(board[index] !== "" || gameOver) {
+document.getElementById('board').addEventListener('click', (e) => {
+    const clickedCell = e.target;
+    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+    if (board[clickedCellIndex] !== "" || !isGameActive || isNaN(clickedCellIndex)) {
         return;
     }
 
-    board[index] = currentPlayer;
-    cell.innerText = currentPlayer;
+    board[clickedCellIndex] = currentPlayer;
+    clickedCell.innerText = currentPlayer;
+    clickedCell.classList.add(currentPlayer);
 
-    if(checkWinner()) {
-        document.getElementById("status").innerText = currentPlayer + " Wins!";
-        gameOver = true;
+    checkResult();
+});
+
+function checkResult() {
+    let roundWon = false;
+    for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            roundWon = true;
+            break;
+        }
+    }
+
+    if (roundWon) {
+        statusDisplay.innerText = `Player ${currentPlayer} Wins! 🎉`;
+        isGameActive = false;
         return;
     }
 
-    if(board.every(c => c !== "")) {
-        document.getElementById("status").innerText = "Draw Match";
+    if (!board.includes("")) {
+        statusDisplay.innerText = "It's a Draw! 🤝";
+        isGameActive = false;
         return;
     }
 
     currentPlayer = currentPlayer === "X" ? "O" : "X";
-
-    document.getElementById("status").innerText =
-        "Player " + currentPlayer + " Turn";
+    statusDisplay.innerText = `Player ${currentPlayer}'s turn`;
 }
 
-function checkWinner() {
-
-    const wins = [
-        [0,1,2],
-        [3,4,5],
-        [6,7,8],
-        [0,3,6],
-        [1,4,7],
-        [2,5,8],
-        [0,4,8],
-        [2,4,6]
-    ];
-
-    return wins.some(combination => {
-        return combination.every(index =>
-            board[index] === currentPlayer
-        );
-    });
-}
-
-function restartGame() {
-
+function resetGame() {
     board = ["", "", "", "", "", "", "", "", ""];
-    gameOver = false;
     currentPlayer = "X";
-
-    document.querySelectorAll(".cell").forEach(cell => {
+    isGameActive = true;
+    statusDisplay.innerText = "Player X's turn";
+    document.querySelectorAll('.cell').forEach(cell => {
         cell.innerText = "";
+        cell.className = "cell";
     });
-
-    document.getElementById("status").innerText =
-        "Player X Turn";
 }
